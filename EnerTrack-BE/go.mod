@@ -1,4 +1,4 @@
-module AI_WEB
+module EnerTrack-BE
 
 go 1.23.6
 

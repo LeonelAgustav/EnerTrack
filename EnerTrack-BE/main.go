@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"AI_WEB/db"
-	"AI_WEB/handlers"
-	"AI_WEB/middleware"
+	"EnerTrack-BE/db"
+	"EnerTrack-BE/handlers"
+	"EnerTrack-BE/middleware"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"

@@ -2,7 +2,7 @@
 
 EnerTrack adalah aplikasi monitoring dan analisis konsumsi energi listrik rumah tangga, terdiri dari dua bagian utama:
 
-- **AI_WEB**: Backend API berbasis Go
+- **EnerTrack-BE**: Backend API berbasis Go
 - **EnerTrack-WEB**: Frontend web berbasis Laravel (PHP)
 
 ---
@@ -11,14 +11,14 @@ EnerTrack adalah aplikasi monitoring dan analisis konsumsi energi listrik rumah 
 
 ```
 EnerTrack_Test/
-├── AI_WEB/           # Backend Go (REST API)
+├── EnerTrack-BE/           # Backend Go (REST API)
 ├── EnerTrack-WEB/    # Frontend Laravel (PHP)
 └── README.md         # Dokumentasi utama
 ```
 
 ---
 
-## 1. Backend: AI_WEB (Go)
+## 1. Backend: EnerTrack-BE (Go)
 
 ### Fitur Utama
 - REST API untuk autentikasi, device, statistik, analisis AI
@@ -29,7 +29,7 @@ EnerTrack_Test/
 ### Cara Menjalankan
 1. Masuk ke folder backend:
    ```sh
-   cd AI_WEB
+   cd EnerTrack-BE
    ```
 2. Copy `.env.example` ke `.env` dan sesuaikan konfigurasi DB & API key jika ada.
 2. Install dependency (jika pakai Go modules):

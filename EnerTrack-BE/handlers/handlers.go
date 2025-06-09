@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"AI_WEB/middleware"
-	"AI_WEB/models"
+	"EnerTrack-BE/middleware"
+	"EnerTrack-BE/models"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/google/uuid"

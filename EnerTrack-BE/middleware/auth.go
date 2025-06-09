@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"AI_WEB/models"
+	"EnerTrack-BE/models"
 
 	"github.com/golang-jwt/jwt/v5"
 )
