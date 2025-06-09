@@ -11,7 +11,7 @@ use App\Http\Controllers\AnalysisController;
 
 // Public routes
 Route::get('/', function () {
-    return view('login');
+    return view('welcome');
 });
 
 // Authentication routes

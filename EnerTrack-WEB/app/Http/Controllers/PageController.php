@@ -64,4 +64,9 @@ class PageController extends Controller
         }
         return view('profile', ['user' => $request->session()->get('user')]);
     }
+
+    public function welcome(Request $request) {
+        //first page the user sees
+        return view('welcome');
+    }
 }
