@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -102,18 +104,6 @@
                 <h1 class="text-3xl font-bold text-gray-800">Profile</h1>
                 <p class="text-gray-600">Manage your account settings</p>
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <i class="fas fa-bell text-gray-500 text-xl cursor-pointer hover:text-blue-600"></i>
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </div>
-                <div class="flex items-center space-x-3 bg-white px-4 py-2 rounded-full shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                        <span>AN</span>
-                    </div>
-                    <span class="font-semibold text-gray-700">Aspara Nagato</span>
-                </div>
-            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -121,51 +111,38 @@
             <div class="lg:col-span-1">
                 <div class="card bg-white rounded-2xl p-6">
                     <div class="flex flex-col items-center">
-                        <div class="relative mb-4">
-                            <div class="w-32 h-32 bg-blue-100 rounded-full profile-avatar flex items-center justify-center text-blue-600 text-4xl font-bold">
+                        <div class="relative mb-8">
+                            <div class="w-32 h-32 bg-blue-100 rounded-full profile-avatar flex items-center justify-center text-blue-600 text-4xl font-bold" id="profileInitials">
                                 AN
                             </div>
-                            <div class="absolute bottom-0 right-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white cursor-pointer hover:bg-blue-600">
-                                <i class="fas fa-camera"></i>
-                            </div>
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-800">Aspara Nagato</h2>
-                        <p class="text-gray-500 mb-4">Energy Analyst</p>
-                        <div class="w-full bg-gray-100 rounded-lg p-4 mb-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-medium text-gray-700">Profile Completion</span>
-                                <span class="text-sm font-medium text-blue-600">85%</span>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6" id="profileName">Aspara Nagato</h2>
+                        <div class="w-full space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">FullName</p>
+                                    <p class="font-medium" id="profileFullname">Aspara Nagato</p>
+                                </div>
                             </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 85%"></div>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-3">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Username</p>
+                                    <p class="font-medium" id="profileUsername">aspara.n</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="w-full space-y-3">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-3">
                                     <i class="fas fa-envelope"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Email</p>
-                                    <p class="font-medium">aspara.n@example.com</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mr-3">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Phone</p>
-                                    <p class="font-medium">+62 812 3456 7890</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mr-3">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Location</p>
-                                    <p class="font-medium">Pasuruan, Indonesia</p>
+                                    <p class="font-medium" id="profileEmail">aspara.n@example.com</p>
                                 </div>
                             </div>
                         </div>
@@ -175,133 +152,195 @@
 
             <!-- Account Settings -->
             <div class="lg:col-span-2">
-                <div class="card bg-white rounded-2xl p-6 mb-6">
+                <div class="card bg-white rounded-2xl p-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-6">Account Settings</h3>
-                    <form>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <form id="profileForm">
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                <input type="text" value="Aspara" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input type="text" id="fullnameInput" value="Aspara Nagato" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                <input type="text" value="Nagato" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                <input type="text" id="usernameInput" value="aspara.n" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" value="aspara.n@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="email" id="emailInput" value="aspara.n@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                                <input type="tel" value="+62 812 3456 7890" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                                <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option>Indonesia</option>
-                                    <option>Malaysia</option>
-                                    <option>Singapore</option>
-                                    <option>Thailand</option>
-                                    <option>Vietnam</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
-                                <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option>English</option>
-                                    <option>Bahasa Indonesia</option>
-                                    <option>Japanese</option>
-                                    <option>Jawa</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">Jl. Sudirman No. 123, Jakarta Selatan</textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 mr-3 hover:bg-gray-50">Cancel</button>
-                            <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save Changes</button>
+                            <button type="submit" id="saveButton" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save Changes</button>
                         </div>
                     </form>
-                </div>
-
-                <!-- Security Settings -->
-                <div class="card bg-white rounded-2xl p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6">Security Settings</h3>
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600 mr-4">
-                                    <i class="fas fa-key"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">Password</h4>
-                                    <p class="text-sm text-gray-500">Last changed 3 months ago</p>
-                                </div>
-                            </div>
-                            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">Change</button>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mr-4">
-                                    <i class="fas fa-mobile-alt"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">Two-Factor Authentication</h4>
-                                    <p class="text-sm text-gray-500">Add extra layer of security</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-sm font-medium text-gray-500 mr-3">Disabled</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mr-4">
-                                    <i class="fas fa-link"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">Connected Accounts</h4>
-                                    <p class="text-sm text-gray-500">Google, Facebook, Twitter, Apple</p>
-                                </div>
-                            </div>
-                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">Manage</button>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 border border-red-100 bg-red-50 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600 mr-4">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">Delete Account</h4>
-                                    <p class="text-sm text-gray-500">Permanently remove your account</p>
-                                </div>
-                            </div>
-                            <button class="px-4 py-2 bg-red-100 text-red-600 rounded-lg text-sm hover:bg-red-200">Delete</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // Simple animation for progress bar on page load
+        // Function to get initials from full name
+        function getInitials(fullname) {
+            if (!fullname) return '';
+            return fullname
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2);
+        }
+
+        // Call fetchUserProfile when document is ready
         document.addEventListener('DOMContentLoaded', function() {
-            const progressFill = document.querySelector('.progress-fill');
-            // Trigger reflow to restart animation
-            progressFill.style.width = '0';
+            fetchUserProfile();
+        });
+
+        // Function to fetch user profile
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('/api/user/profile', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Redirect to login if unauthorized
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Failed to fetch profile');
+                }
+
+                const data = await response.json();
+                
+                // Update profile card
+                document.getElementById('profileInitials').textContent = getInitials(data.fullname);
+                document.getElementById('profileName').textContent = data.fullname;
+                document.getElementById('profileFullname').textContent = data.fullname;
+                document.getElementById('profileUsername').textContent = data.username;
+                document.getElementById('profileEmail').textContent = data.email;
+
+                // Update form inputs
+                document.getElementById('fullnameInput').value = data.fullname;
+                document.getElementById('usernameInput').value = data.username;
+                document.getElementById('emailInput').value = data.email;
+
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                // Show error message to user
+                alert('Failed to load profile data. Please try again later.');
+            }
+        }
+
+        // Function to update profile
+        async function updateProfile(formData) {
+            const saveButton = document.getElementById('saveButton');
+            const originalButtonText = saveButton.textContent;
+            
+            try {
+                // Disable button and show loading state
+                saveButton.disabled = true;
+                saveButton.textContent = 'Saving...';
+                saveButton.classList.add('opacity-75');
+
+                const response = await fetch('/api/user/profile/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Redirect to login if unauthorized
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error(data.message || 'Failed to update profile');
+                }
+
+                // Update profile display
+                document.getElementById('profileInitials').textContent = getInitials(formData.fullname);
+                document.getElementById('profileName').textContent = formData.fullname;
+                document.getElementById('profileFullname').textContent = formData.fullname;
+                document.getElementById('profileUsername').textContent = formData.username;
+                document.getElementById('profileEmail').textContent = formData.email;
+
+                // Show success message
+                showNotification('Profile updated successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showNotification(error.message || 'Failed to update profile. Please try again.', 'error');
+            } finally {
+                // Re-enable button and restore original text
+                saveButton.disabled = false;
+                saveButton.textContent = originalButtonText;
+                saveButton.classList.remove('opacity-75');
+            }
+        }
+
+        // Function to show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-white z-50 transition-opacity duration-300`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
             setTimeout(() => {
-                progressFill.style.width = '85%';
-            }, 100);
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add form submission handler
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                fullname: document.getElementById('fullnameInput').value.trim(),
+                username: document.getElementById('usernameInput').value.trim(),
+                email: document.getElementById('emailInput').value.trim()
+            };
+
+            // Basic validation
+            if (!formData.fullname || !formData.username || !formData.email) {
+                showNotification('All fields are required', 'error');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+
+            await updateProfile(formData);
+        });
+
+        // Add cancel button handler
+        document.querySelector('button[type="button"]').addEventListener('click', function() {
+            // Reset form to current profile data
+            fetchUserProfile();
         });
     </script>
 </body>

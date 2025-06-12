@@ -8,6 +8,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalysisController;
+use App\Http\Controllers\UserController;
 
 // Public routes
 Route::get('/', function () {
@@ -54,4 +55,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/analysis/daily-statistics', [AnalysisController::class, 'getDailyStatistics'])->name('analysis.daily-statistics');
     Route::get('/analysis/category-counts', [AnalysisController::class, 'getCategoryCounts'])->name('analysis.category-counts');
     Route::get('/analysis/weekly-cost-statistics', [AnalysisController::class, 'getWeeklyCostStatistics'])->name('analysis.weekly-cost-statistics');
+
+    // User routes
+    Route::get('/api/username', [UserController::class, 'getUsername'])->name('api.username');
+    Route::get('/api/user/profile', [UserController::class, 'getUserProfile'])->name('api.user.profile');
+    Route::put('/api/user/profile/update', [UserController::class, 'updateProfile'])->name('api.user.profile.update');
 });

@@ -62,6 +62,8 @@ func main() {
 	http.HandleFunc("/api/recent-calculations", middleware.CORSMiddleware(middleware.LoggingMiddleware(middleware.AuthMiddleware(handler.GetRecentCalculations))))
 	http.HandleFunc("/api/category-counts", middleware.CORSMiddleware(middleware.LoggingMiddleware(middleware.AuthMiddleware(handler.GetCategoryCounts))))
 	http.HandleFunc("/api/weekly-cost-statistics", middleware.CORSMiddleware(middleware.LoggingMiddleware(middleware.AuthMiddleware(handler.GetWeeklyCostStatistics))))
+	http.HandleFunc("/api/user-profile", middleware.CORSMiddleware(middleware.LoggingMiddleware(middleware.AuthMiddleware(handler.GetUserProfile))))
+	http.HandleFunc("/api/user-profile/update", middleware.CORSMiddleware(middleware.LoggingMiddleware(middleware.AuthMiddleware(handler.UpdateProfile))))
 
 	fmt.Println("Server running on http://localhost:8082")
 	log.Fatal(http.ListenAndServe(":8082", nil))

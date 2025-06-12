@@ -61,7 +61,40 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		log.Printf("❌ Register failed - Invalid request body: %v", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Invalid request format. Please check your input data.", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if user.Fullname == "" || user.Username == "" || user.Email == "" || user.Password == "" {
+		log.Printf("❌ Register failed - Missing required fields")
+		http.Error(w, "All fields (fullname, username, email, password) are required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if email already exists
+	var existingEmail string
+	err := h.DB.QueryRow("SELECT email FROM users WHERE email = ?", user.Email).Scan(&existingEmail)
+	if err == nil {
+		log.Printf("❌ Register failed - Email already registered: %s", user.Email)
+		http.Error(w, "Email is already registered. Please use a different email.", http.StatusBadRequest)
+		return
+	} else if err != sql.ErrNoRows {
+		log.Printf("❌ Register failed - Database error while checking email: %v", err)
+		http.Error(w, "Error checking email availability. Please try again.", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if username already exists
+	var existingUsername string
+	err = h.DB.QueryRow("SELECT username FROM users WHERE username = ?", user.Username).Scan(&existingUsername)
+	if err == nil {
+		log.Printf("❌ Register failed - Username already taken: %s", user.Username)
+		http.Error(w, "Username is already taken. Please choose a different username.", http.StatusBadRequest)
+		return
+	} else if err != sql.ErrNoRows {
+		log.Printf("❌ Register failed - Database error while checking username: %v", err)
+		http.Error(w, "Error checking username availability. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
@@ -69,15 +102,16 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("❌ Register failed - Failed to hash password: %v", err)
-		http.Error(w, "Registration failed", http.StatusInternalServerError)
+		http.Error(w, "Error processing password. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
+	// Insert new user
 	_, err = h.DB.Exec("INSERT INTO users (fullname, username, email, password) VALUES (?, ?, ?, ?)",
-		user.Fullname, user.Username, user.Email, string(hashedPassword)) // Store hashed password
+		user.Fullname, user.Username, user.Email, string(hashedPassword))
 	if err != nil {
 		log.Printf("❌ Register failed - Database error: %v", err)
-		http.Error(w, "Registration failed", http.StatusInternalServerError)
+		http.Error(w, "Error creating user account. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
@@ -1009,4 +1043,114 @@ func (h *Handler) GetWeeklyCostStatistics(w http.ResponseWriter, r *http.Request
 
 	log.Printf("[WEEKLY COST] Final stats: %+v", stats)
 	json.NewEncoder(w).Encode(stats)
+}
+
+// GetUserProfile returns the user's fullname, username, and email
+func (h *Handler) GetUserProfile(w http.ResponseWriter, r *http.Request) {
+	claims, err := middleware.GetClaimsFromContext(r)
+	if err != nil {
+		log.Printf("❌ Get user profile failed - Auth error: %v", err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	var user struct {
+		Fullname string `json:"fullname"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+
+	err = h.DB.QueryRow(`
+		SELECT fullname, username, email 
+		FROM users 
+		WHERE user_id = ?`, claims.UserID).Scan(&user.Fullname, &user.Username, &user.Email)
+	if err != nil {
+		log.Printf("❌ Get user profile failed - Database error: %v", err)
+		http.Error(w, "Failed to fetch user profile", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("✅ User profile fetched successfully for user ID: %d", claims.UserID)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
+
+// UpdateProfile updates the user's profile information
+func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	claims, err := middleware.GetClaimsFromContext(r)
+	if err != nil {
+		log.Printf("❌ Update profile failed - Auth error: %v", err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	var updateData struct {
+		Fullname string `json:"fullname"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
+		log.Printf("❌ Update profile failed - Invalid request body: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input data
+	if updateData.Fullname == "" || updateData.Username == "" || updateData.Email == "" {
+		log.Printf("❌ Update profile failed - Missing required fields")
+		http.Error(w, "All fields (fullname, username, email) are required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if email is already taken by another user
+	var existingUserID int
+	err = h.DB.QueryRow("SELECT user_id FROM users WHERE email = ? AND user_id != ?",
+		updateData.Email, claims.UserID).Scan(&existingUserID)
+	if err == nil {
+		log.Printf("❌ Update profile failed - Email already taken")
+		http.Error(w, "Email is already taken by another user", http.StatusBadRequest)
+		return
+	} else if err != sql.ErrNoRows {
+		log.Printf("❌ Update profile failed - Database error while checking email: %v", err)
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if username is already taken by another user
+	err = h.DB.QueryRow("SELECT user_id FROM users WHERE username = ? AND user_id != ?",
+		updateData.Username, claims.UserID).Scan(&existingUserID)
+	if err == nil {
+		log.Printf("❌ Update profile failed - Username already taken")
+		http.Error(w, "Username is already taken by another user", http.StatusBadRequest)
+		return
+	} else if err != sql.ErrNoRows {
+		log.Printf("❌ Update profile failed - Database error while checking username: %v", err)
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
+
+	// Update user profile
+	_, err = h.DB.Exec(`
+		UPDATE users 
+		SET fullname = ?, username = ?, email = ? 
+		WHERE user_id = ?`,
+		updateData.Fullname, updateData.Username, updateData.Email, claims.UserID)
+	if err != nil {
+		log.Printf("❌ Update profile failed - Database error: %v", err)
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("✅ Profile updated successfully for user ID: %d", claims.UserID)
+
+	// Return updated profile
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Profile updated successfully",
+		"profile": updateData,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
