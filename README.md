@@ -92,13 +92,3 @@ EnerTrack_Test/
 ## 4. Catatan
 - Tambahkan `.gitignore` untuk file/folder yang tidak perlu di-push (misal: `vendor/`, `node_modules/`, `storage/`, `*.log`, dsb)
 - Untuk pengembangan AI, pastikan API key sudah diatur di environment backend
-
----
-
-## 5. Kontribusi
-Pull request dan issue sangat diterima!
-
----
-
-## 6. Lisensi
-MIT
